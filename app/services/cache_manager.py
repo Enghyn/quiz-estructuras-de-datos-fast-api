@@ -36,6 +36,7 @@ class CacheManager:
         """
         self.question_cache = queue.Queue(maxsize=settings.CACHE_SIZE)
         self.previous_topics_global = []
+        self.previous_structures_global = []
         self.topics_lock = threading.Lock()
         self._start_preload_thread()
     
@@ -68,8 +69,9 @@ class CacheManager:
                 try:
                     with self.topics_lock:
                         previous_topics = list(self.previous_topics_global)
+                        previous_structures = list(self.previous_structures_global)
                     
-                    question = gemini_service.generate_question(previous_topics)
+                    question = gemini_service.generate_question(previous_topics, previous_structures)
                     
                     if is_question_valid(question):
                         self.question_cache.put(question)
@@ -78,6 +80,10 @@ class CacheManager:
                             self.previous_topics_global.extend(question.get("tematicas_usadas", [])) #Se agregan las nuevas temáticas a la lista
                             if len(self.previous_topics_global) > settings.MAX_PREVIOUS_TOPICS:
                                 self.previous_topics_global = [] #Se asegura que no se acumulen demasiadas temáticas previas
+            
+                            self.previous_structures_global.append(question.get("estructuras_usadas", [])) #Se agregan las nuevas estructuras a la lista
+                            if len(self.previous_structures_global) > settings.MAX_PREVIOUS_STRUCTURES:
+                                self.previous_structures_global = [] #Se asegura que no se acumulen demasiadas estructuras previas
                     
                     time.sleep(5)
                     

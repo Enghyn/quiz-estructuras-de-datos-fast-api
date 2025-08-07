@@ -30,7 +30,7 @@ class GeminiService:
         self.client = genai.Client(api_key=settings.GENAI_API_KEY)
         self.model_name = "gemini-2.5-flash-lite-preview-06-17"
     
-    def generate_question(self, previous_topics: list = None) -> dict:
+    def generate_question(self, previous_topics: list = None, previous_structures: list = None) -> dict:
         """
         Genera una nueva pregunta de quiz usando Gemini AI.
         
@@ -53,13 +53,17 @@ class GeminiService:
                 "respuestas": ["Opción A", "Opción B", "Opción C", "Opción D"],
                 "respuesta_correcta": "Respuesta correcta",
                 "explicacion": "Explicación detallada",
-                "tematicas_usadas": ["tema1", "tema2"]
+                "tematicas_usadas": ["tema1", "tema2"],
+                "estructuras_usadas": ["list", "tuple", "dict", "set"]
             }
         """
         if previous_topics is None:
             previous_topics = []
         
-        prompt = build_prompt_with_previous_topics(previous_topics)
+        if previous_structures is None:
+            previous_structures = []
+
+        prompt = build_prompt_with_previous_topics(previous_topics, previous_structures)
         
         try:
             response = self.client.models.generate_content(

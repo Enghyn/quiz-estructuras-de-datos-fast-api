@@ -64,7 +64,8 @@ def validate_question_structure(question_json: dict) -> dict:
         "respuestas": respuestas,
         "respuesta_correcta": question_json.get("Respuesta correcta"),
         "explicacion": question_json.get("Explicacion", ""),
-        "tematicas_usadas": question_json.get("tematicas_usadas", [])
+        "tematicas_usadas": question_json.get("tematicas_usadas", []),
+        "estructuras_usadas": question_json.get("estructuras_usadas", [])
     }
     
     return question
